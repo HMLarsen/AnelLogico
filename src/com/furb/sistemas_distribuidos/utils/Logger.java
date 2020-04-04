@@ -1,4 +1,4 @@
-package com.furb.sistemas_distribuidos.util;
+package com.furb.sistemas_distribuidos.utils;
 
 /**
  * Responsável por gerenciar todo o log do ambiente distribuído.
@@ -11,7 +11,8 @@ public class Logger {
 	 * @param message mensagem a ser exibida
 	 */
 	public static void log(String message) {
-		System.out.println(message + "\n");
+		System.out.println(message + "\n" +
+				"-----------------------------------------------------------------------------");
 	}
 
 }
