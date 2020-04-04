@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Representa um processo genérico sendo executado no ambiente distribuído.
  */
 public class Process {
-	
+
 	private static AtomicLong counter = new AtomicLong(1);
 
 	private long id;
@@ -14,7 +14,6 @@ public class Process {
 	private boolean coordinator;
 
 	public Process() {
-		super();
 		this.id = counter.getAndIncrement();
 		this.active = true;
 		this.coordinator = false;

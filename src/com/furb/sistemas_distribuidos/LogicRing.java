@@ -1,7 +1,6 @@
 package com.furb.sistemas_distribuidos;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Timer;
 
 import com.furb.sistemas_distribuidos.model.Process;
@@ -25,7 +24,8 @@ public class LogicRing {
 
 	// controllers
 	private static final Timer timer = new Timer();
-	private static final List<Process> processList = new ArrayList<>();
+	private static final LinkedList<Process> processList = new LinkedList<>();
+	private static final LinkedList<Process> processElectionList = new LinkedList<>();
 
 	/**
 	 * Inicia a ambientalização do sistema distribuído.
@@ -34,22 +34,14 @@ public class LogicRing {
 	 */
 	public static void main(String[] args) {
 		CreateProcessorTask processorTask = new CreateProcessorTask();
+		CoordinatorRequestTask coordinatorTask = new CoordinatorRequestTask();
 		InactivateCoordinatorTask inactivateCoordinatorTask = new InactivateCoordinatorTask();
 		InactivateProcessTask inactivateProcessTask = new InactivateProcessTask();
 
 		timer.schedule(processorTask, 0, CREATE_PROCESSOR_TASK_TIME);
+		timer.schedule(coordinatorTask, COORDINATOR_REQUEST_TASK_TIME, COORDINATOR_REQUEST_TASK_TIME);
 		timer.schedule(inactivateCoordinatorTask, INACTIVATE_COORDINATOR_TASK_TIME, INACTIVATE_COORDINATOR_TASK_TIME);
 		timer.schedule(inactivateProcessTask, INACTIVATE_PROCESSOR_TASK_TIME, INACTIVATE_PROCESSOR_TASK_TIME);
-	}
-
-	/**
-	 * Inicia o lapse de requests do processo ao coordenador.
-	 * 
-	 * @param process processo que requisitará ao coordenador
-	 */
-	public static void initProcessRequestLapse(Process process) {
-		CoordinatorRequestTask coordinatorTask = new CoordinatorRequestTask(process);
-		timer.schedule(coordinatorTask, COORDINATOR_REQUEST_TASK_TIME, COORDINATOR_REQUEST_TASK_TIME);
 	}
 
 	/**
@@ -72,28 +64,44 @@ public class LogicRing {
 		if (coordinator != null) {
 			Logger.log("Requisição recebida pelo coordenador " + coordinator.getId() + ".");
 		} else {
-			makeElection();
-			handleRequest(process);
+			handleRequest(makeElection(process));
 		}
 	}
 
 	/**
 	 * Inicia uma eleição no ambiente para definir um novo coordenador.
 	 */
-	public static synchronized void makeElection() {
-		// TODO implementar corretamente o algoritmo da eleição
-		// e documentar corretamente o método
-		Process randomProcess = ProcessSelector.getRandomActiveNotCoordinator();
-		randomProcess.setCoordinator(true);
-		Logger.log("Processo " + randomProcess.getId() + " é o novo coordenador.");
+	public static synchronized Process makeElection(Process process) {
+
+		LinkedList<Process> processes = getProcessElectionlist();
+
+		if (processes.contains(process)) {
+			Process coordenador = ProcessSelector.makeElection();
+			coordenador.setCoordinator(true);
+
+			Logger.log("Processo " + coordenador.getId() + " é o novo coordenador.");
+			return coordenador;
+		} else if (process.isActive()) {
+			processes.add(process);
+		}
+
+		return getProcesslist().get(getProcessElectionlist().indexOf(process) + 1); // REVER
 	}
 
-	public List<Process> getProcessList() {
+	public LinkedList<Process> getProcessList() {
 		return processList;
 	}
 
-	public static List<Process> getProcesslist() {
+	public static LinkedList<Process> getProcesslist() {
 		return processList;
+	}
+
+	public LinkedList<Process> getProcessElectionList() {
+		return processElectionList;
+	}
+
+	public static LinkedList<Process> getProcessElectionlist() {
+		return processElectionList;
 	}
 
 }

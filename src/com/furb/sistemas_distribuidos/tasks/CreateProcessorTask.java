@@ -1,6 +1,6 @@
 package com.furb.sistemas_distribuidos.tasks;
 
-import java.util.List;
+import java.util.LinkedList;
 
 import com.furb.sistemas_distribuidos.LogicRing;
 import com.furb.sistemas_distribuidos.model.Process;
@@ -17,7 +17,7 @@ public class CreateProcessorTask extends Task {
 	@Override
 	public void run() {
 		Process process = new Process();
-		List<Process> processlist = LogicRing.getProcesslist();
+		LinkedList<Process> processlist = LogicRing.getProcesslist();
 		String name = "processo";
 		if (processlist.isEmpty()) {
 			process.setCoordinator(true);
@@ -25,7 +25,6 @@ public class CreateProcessorTask extends Task {
 		}
 		processlist.add(process);
 		logOut("Criado " + name + " " + process.getId() + ".");
-		LogicRing.initProcessRequestLapse(process);
 	}
 
 }

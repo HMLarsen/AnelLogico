@@ -2,22 +2,12 @@ package com.furb.sistemas_distribuidos.tasks;
 
 import com.furb.sistemas_distribuidos.LogicRing;
 import com.furb.sistemas_distribuidos.model.Process;
+import com.furb.sistemas_distribuidos.util.ProcessSelector;
 
 /**
  * Representa a requisição feita ao coordenador do ambiente distrubuído.
  */
 public class CoordinatorRequestTask extends Task {
-
-	private Process requester;
-
-	/**
-	 * Contrutor padrão.
-	 * 
-	 * @param requester processo que requisitará ao coordenador
-	 */
-	public CoordinatorRequestTask(Process requester) {
-		this.requester = requester;
-	}
 
 	/**
 	 * Inicia a request ao coordenador.<br>
@@ -27,16 +17,12 @@ public class CoordinatorRequestTask extends Task {
 	 */
 	@Override
 	public void run() {
-		synchronized (this) {
-			if (requester.isActive() && !requester.isCoordinator()) {
-				logOut("Processo " + requester.getId() + " fez uma requisição ao coordenador.");
-				LogicRing.handleRequest(requester);
-			}
-		}
-	}
+		Process process = ProcessSelector.getRandomActiveNotCoordinator();
 
-	public Process getRequester() {
-		return requester;
+		if (process != null) {
+			logOut("Processo " + process.getId() + " fez uma requisição ao coordenador.");
+			LogicRing.handleRequest(process);
+		}
 	}
 
 }
