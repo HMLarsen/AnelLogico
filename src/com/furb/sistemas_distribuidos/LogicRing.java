@@ -65,6 +65,10 @@ public class LogicRing {
 	 * @param processId id processo que fez a requisição da eleição
 	 */
 	public static synchronized void makeElection(long processId) {
+		if(coordinator != null) {
+			return;
+		}
+		
 		int index = activeProcessList.size() - 1;
 		Coordinator newCoordinator = new Coordinator(activeProcessList.get(index));
 		setCoordinator(newCoordinator);
